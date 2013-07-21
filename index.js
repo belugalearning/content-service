@@ -18,7 +18,7 @@ contentService.tools.sorting = {
           label: function(value) {
             return value == 1
               ? 'Has 1 eye'
-              : 'Has ' + value + 'eyes'
+              : 'Has ' + value + ' eyes'
           },
           negationLabel: function(value) {
             return value == 1
