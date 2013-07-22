@@ -146,7 +146,7 @@ window.bl.contentService.tools.sorting = {
       completionEvaluation: ('\
         <apply>\
           <cardinality/>\
-          <csymbol definitionURL="local://sets/unclassified"/>\
+          <csymbol definitionURL="local://lists/unclassified"/>\
           <cn>0</cn>\
         </apply>').replace(/\s*</g, '<')
     }
