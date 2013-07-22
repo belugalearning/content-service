@@ -187,7 +187,7 @@ window.bl.contentService.tools.sorting = {
       if (question.setCategory != 'creature') throw new Error('Set type not supported')
       if (question.numSets != 3) throw new Error('invalid number of sets')
 
-      var sortingContent = contentService.tools.sorting
+      var sortingContent = window.bl.contentService.tools.sorting
       var params = sortingContent.setDefinitions[question.setCategory].params
 
       // create sets - N.B. random params and random values
