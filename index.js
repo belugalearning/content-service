@@ -9,7 +9,7 @@ window.bl.contentService = {
   }
 }
 
-contentService.tools.sorting = {
+window.bl.contentService.tools.sorting = {
   setDefinitions: {
     creature: {
       params: [
