@@ -323,7 +323,6 @@ window.bl.contentService.tools.sorting = {
     var segmentsRemaining = Math.pow(2, sets.length)
     while (segmentsRemaining--) {
       var numInSegment = numInSegmentFn(truthTableRow)
-      console.log(numInSegment);
 
       for (var i=0; i<numInSegment; i++) {
         var id = setCategory + Object.keys(members).length
