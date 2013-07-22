@@ -224,7 +224,7 @@ window.bl.contentService.tools.sorting = {
           : 0
       })
     },
-    // autoreject, random properties, 5 sets, no combinations intersect
+    // autoreject, random properties, 5 sets, different values for same property
     bar: function(question) {
       if (question.setCategory != 'creature') throw new Error('Set type not supported')
       if (question.numSets != 5) throw new Error('invalid number of sets')
@@ -234,16 +234,24 @@ window.bl.contentService.tools.sorting = {
 
       // create sets - N.B. random params and random values
       var sets = []
-      var paramIndices = params.map(function(p, i) { return i })
+
+      var filteredParams = params.filter(function(p) {
+        return p.values.length >= question.numSets
+      })
+
+      var paramIndices = filteredParams.map(function(p, i) { return i })
       var ix = randomArrayIndex(paramIndices)
-      var param = params[paramIndices[ix]]
+      var param = filteredParams[paramIndices[ix]]
       paramIndices.splice(ix, 1)
 
+      var valueIndices = param.values.map(function(p, i) { return i })
       while (sets.length < question.numSets) {
+        var valuesIx = randomArrayIndex(valueIndices)
         var setDefinition = {
           key: param.key,
-          value: randomArrayElement(param.values)
+          value: param.values[valueIndices[valuesIx]]
         }
+        valueIndices.splice(valuesIx, 1);
         sets.push(setDefinition)
 
         var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
@@ -261,7 +269,9 @@ window.bl.contentService.tools.sorting = {
 
       question.symbols.set_members = sortingContent.createSetsMembers(question.setCategory, sortingContent.setDefinitions[question.setCategory], sets, function(truthTableRow) { 
         // 1 per segment
-        return 1;
+        return truthTableRow.filter(function (b) {
+          return b;
+        }).length <= 2 ? 1 : 0;
       })
     },
     // autoreject, random properties, 2 sets, all combinations intersect
@@ -313,6 +323,7 @@ window.bl.contentService.tools.sorting = {
     var segmentsRemaining = Math.pow(2, sets.length)
     while (segmentsRemaining--) {
       var numInSegment = numInSegmentFn(truthTableRow)
+      console.log(numInSegment);
 
       for (var i=0; i<numInSegment; i++) {
         var id = setCategory + Object.keys(members).length
