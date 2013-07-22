@@ -223,6 +223,48 @@ window.bl.contentService.tools.sorting = {
           ? 2
           : 0
       })
+    },
+    // autoreject, random properties, 2 sets, all combinations intersect
+    table: function(question) {
+      if (question.setCategory != 'creature') throw new Error('Set type not supported')
+      if (question.numSets != 2) throw new Error('invalid number of sets')
+
+      var sortingContent = window.bl.contentService.tools.sorting
+      var params = sortingContent.setDefinitions[question.setCategory].params
+
+      // create sets - N.B. random params and random values
+      var sets = []
+      var paramIndices = params.map(function(p, i) { return i })
+      while (sets.length < question.numSets) {
+        var ix = randomArrayIndex(paramIndices)
+        var param = params[paramIndices[ix]]
+        paramIndices.splice(ix, 1)
+
+        var setDefinition = {
+          key: param.key,
+          value: randomArrayElement(param.values)
+        }
+        sets.push(setDefinition)
+
+        var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
+          return setDefinition[pattern]
+        })
+
+        var id = 'set' + (sets.length - 1)
+        question.symbols.sets[id] = {
+          definitionURL: 'local://symbols/sets/' + id,
+          mathml: mathml,
+          label: param.label(setDefinition.value),
+          negationLabel: param.negationLabel(setDefinition.value)
+        }
+      }
+
+      question.symbols.set_members = sortingContent.createSetsMembers(question.setCategory, sortingContent.setDefinitions[question.setCategory], sets, function(truthTableRow) { 
+        // 2 per segment except 0 for final (F F ... F) row of truth table
+        return !!~truthTableRow.indexOf(true)
+          ? 2
+          : 0
+      })
     }
   },
   createSetsMembers: function(setCategory, setCategoryDefinition, sets, numInSegmentFn) {
