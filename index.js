@@ -1,4 +1,5 @@
-var contentService = {
+window.bl = window.bl || {};
+window.bl.contentService = {
   tools: {},
   question: function(opts) {
     var tool = opts.tool
