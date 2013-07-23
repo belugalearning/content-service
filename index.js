@@ -119,7 +119,7 @@ window.bl.contentService.tools.sorting = {
               <ci>x</ci>\
               <key>{key}</key>\
             </apply>\
-            <string>{value}</string>\
+            <{mathmlValueType}>{value}</{mathmlValueType}>\
           </apply>\
         </condition>\
       </set>").replace(/\s*/g, '')
@@ -199,8 +199,13 @@ window.bl.contentService.tools.sorting = {
 
         var setDefinition = {
           key: param.key,
-          value: randomArrayElement(param.values)
+          value: randomArrayElement(param.values),
         }
+        setDefinition.mathmlValueType = ({
+          'boolean' : 'boolean',
+          'number': 'cn',
+          'string': 'string'
+        })[ typeof setDefinition.value ]
         sets.push(setDefinition)
 
         var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
