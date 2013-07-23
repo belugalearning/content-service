@@ -404,6 +404,11 @@ window.bl.contentService.tools.sorting = {
           key: param.key,
           value: param.values[valueIndices[valuesIx]]
         }
+        setDefinition.mathmlValueType = ({
+          'boolean' : 'boolean',
+          'number': 'cn',
+          'string': 'string'
+        })[ typeof setDefinition.value ]
         valueIndices.splice(valuesIx, 1);
         sets.push(setDefinition)
 
@@ -449,6 +454,11 @@ window.bl.contentService.tools.sorting = {
             key: param.key,
             value: randomArrayElement(param.values)
           }
+          setDefinition.mathmlValueType = ({
+            'boolean' : 'boolean',
+            'number': 'cn',
+            'string': 'string'
+          })[ typeof setDefinition.value ]
           sets.push(setDefinition)
 
           var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
@@ -493,6 +503,11 @@ window.bl.contentService.tools.sorting = {
             key: prop,
             value: shape[prop]
           }
+          setDefinition.mathmlValueType = ({
+            'boolean' : 'boolean',
+            'number': 'cn',
+            'string': 'string'
+          })[ typeof setDefinition.value ]
           sets.push(setDefinition)
 
           var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
@@ -600,6 +615,9 @@ function pickRandomProperty(obj) {
 
 function toTitleCase(str) {
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
+function defineSet(param) {
 }
 
 /*
