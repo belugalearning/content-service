@@ -1,3 +1,5 @@
+if (typeof window == 'undefined') window = {} // testing outside of browser
+
 window.bl = window.bl || {};
 window.bl.contentService = {
   tools: {},
@@ -87,7 +89,7 @@ window.bl.contentService.tools.sorting = {
       label: function (property, value, negation) {
         switch (property) {
           case 'name':
-            var friendly = toTitleCase(value.replace(/\_/ig, ' '))
+            var friendly = tvalue.replace(/\_/ig, ' ')
             return !negation 
               ? friendly
               : 'not a ' + friendly
@@ -122,7 +124,6 @@ window.bl.contentService.tools.sorting = {
         }
       },
       sprite: function(shape) {
-
         var colours = {
           red:    { r: 231, g: 0,   b: 0,   a: 255 },
           yellow: { r: 247, g: 204, b: 0,   a: 255 },
@@ -472,72 +473,72 @@ window.bl.contentService.tools.sorting = {
             : 0
         })
       } else {
-
+        var chosenKeys = []
         var shapes = sortingContent.setDefinitions[question.setCategory].options;
-        var label = sortingContent.setDefinitions[question.setCategory].label;
 
-        var properties = {};
+        while(chosenKeys.length < question.numSets) {
+          var availableKeys = shapes.reduce(function(ret, shape) {
+            Object.keys(shape).forEach(function(key) {
+              if (key != 'name' && !~ret.indexOf(key)) {
+                ret.push(key)
+              }
+            })
+            return ret
+          }, [])
 
-        var sets = []
-        var props = []
+          var key = randomArrayElement(availableKeys)
+          chosenKeys.push(key)
 
-        while (sets.length < question.numSets) {
+          shapes = shapes.filter(function(shape) {
+            return typeof shape[key] != 'undefined'
+          })
+        }
 
-          var shape = shapes[randomArrayIndex(shapes)];
-          var prop = pickRandomProperty(shape);
-          while (props.indexOf(prop) > -1) {
-            var prop = pickRandomProperty(shape);
-          }
-          props.push(prop)
-
+        var setDefs = chosenKeys.map(function(key) {
+          var randomShape = randomArrayElement(shapes)
           var setDefinition = {
-            key: prop,
-            value: shape[prop]
+            key: key,
+            value: randomShape[key]
           }
           setDefinition.mathmlValueType = ({
             'boolean' : 'boolean',
             'number': 'cn',
             'string': 'string'
           })[ typeof setDefinition.value ]
-          sets.push(setDefinition)
+          return setDefinition
+        })
 
-          var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
-            return setDefinition[pattern]
-          })
-
-          var id = 'set' + (sets.length - 1)
-          question.symbols.sets[id] = {
+        var label = sortingContent.setDefinitions[question.setCategory].label;
+        setDefs.forEach(function(setDefinition, i) {
+          var id = 'set' + i
+          var setSymbol = {
             definitionURL: 'local://symbols/sets/' + id,
-            mathml: mathml,
             label: label(setDefinition.key, setDefinition.value, false),
             negationLabel: label(setDefinition.key, setDefinition.value, true)
           }
-        }
-
-        //
+          setSymbol.mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
+            return setDefinition[pattern]
+          })
+          question.symbols.sets[id] = setSymbol
+        })
 
         question.symbols.set_members = {};
+        setDefs.forEach(function(setDefinition) {
+          [true, false].forEach(function(bool) {
+            var filteredShapes = shapes.filter(function(shape) {
+              return (shape[setDefinition.key] == setDefinition.value) == bool
+            })
 
-        for (var i=0; i<shapes.length; i++) {
-          var id = question.setCategory + Object.keys(question.symbols.set_members).length
-          var member = {
-            definitionURL: 'local://symbols/set_members/' + id,
-            name: shapes[i].name
-          }
-          question.symbols.set_members[id] = member
-
-          sortingContent.setDefinitions[question.setCategory].options.forEach(function(param) {
-            for (var j=0; j<sets.length; j++) {
-              if (sets[j].value == param[sets[j].key]) {
-                set = sets[j]
-                member[param.key] = sets[j].value
-              }
+            var numPropValueMembers = 2 + Math.floor(Math.random() * 2)
+            for (var i=0; i<numPropValueMembers; i++) {
+              var id = question.setCategory + Object.keys(question.symbols.set_members).length
+              var member = JSON.parse(JSON.stringify(randomArrayElement(filteredShapes)))
+              member.sprite = sortingContent.setDefinitions[question.setCategory].sprite(member)
+              member.definitionURL = 'local://symbols/set_members/' + id
+              question.symbols.set_members[id] = member
             }
           })
-
-          member.sprite = sortingContent.setDefinitions[question.setCategory].sprite(member)
-        }
-
+        })
       }
     }
   },
@@ -620,3 +621,10 @@ var q = contentService.question({
 })
 console.log(JSON.stringify(q,null,2).replace(/"/g, "'").replace(/\\'/g, '"'))
 //*/
+var q = window.bl.contentService.question({
+  tool: 'sorting',
+  toolMode: 'table',
+  setCategory: 'shape',
+  numSets: 2
+})
+console.log(JSON.stringify(q,null,2).replace(/"/g, "'").replace(/\\'/g, '"'))
