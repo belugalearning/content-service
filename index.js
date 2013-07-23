@@ -88,46 +88,37 @@ window.bl.contentService.tools.sorting = {
         switch (property) {
           case 'name':
             var friendly = toTitleCase(value.replace(/\_/ig, ' '))
-            return negation ? 
-              'Is not a ' + friendly :
-              'Is a ' + friendly
-          break;
+            return !negation 
+              ? friendly
+              : 'not a ' + friendly
           case 'regular':
-            return negation ? 
-              'Is not a ' + value + ' shape' :
-              'Is a ' + value + ' shape'
-          break;
+            return negation != value
+              ? 'regular'
+              : 'irregular'
           case 'orderRotationalSymmetry':
-            return negation ? 
-              'Doesn\'t have ' + value + ' line' + (value !== 1 ? 's' : '') + ' of rotational symmetry' :
-              'Has order ' + value + ' line' + (value !== 1 ? 's' : '') + ' of rotational symmetry'
-          break;
+            return !negation 
+              ? 'rotational symmetry order ' + value
+              : 'not rotational symmetry order ' + value
           case 'numAngles':
-            return negation ? 
-              'Doesn\t have ' + value + ' angles' :
-              'Has ' + value + ' angles'
-          break;
+            return !negation 
+              ? value + ' angles'
+              : 'not ' + value + ' angles'
           case 'numSides':
-            return negation ? 
-              'Doesn\'t have ' + value + ' sides' :
-              'Has ' + value + ' sides'
-          break;
+            return !negation 
+              ? value + ' sides'
+              : 'not ' + value + ' sides'
           case 'numSidesShapeName':
-            return negation ? 
-              'Is not a ' + value :
-              'Is a ' + value
-          break;
+            return !negation 
+              ? value
+              : 'not a ' + value
           case 'hasEqualSides':
-            return negation ? 
-              'Doesn\'t have equal sides' : 
-              'Has equal sides'
-          break;
+            return !negation 
+              ? 'equal sides'
+              : 'no equal sides'
           case 'pairsParallelSides':
-            return negation ? 
-              'Doesn\'t have ' + value + ' pair' + (value !== 1 ? 's' : '') + ' of parallel sides' :
-              'Has ' + value + ' pair' + (value !== 1 ? 's' : '') + ' of parallel sides'
-          break;
-
+            return negation 
+              ? 'pair(s) parallel sides'
+              : 'no parallel sides'
         }
       },
       sprite: function(shape) {
