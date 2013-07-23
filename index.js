@@ -75,7 +75,7 @@ window.bl.contentService.tools.sorting = {
           numAngles: 4,
           numSides: 4,
           numSidesShapeName: 'quadrilateral',
-          hasEqualSides: true,
+          hasEqualSides: false,
           pairsParallelSides: 2
         },
         {
