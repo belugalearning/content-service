@@ -34,7 +34,7 @@ window.bl.contentService.tools.sorting = {
           pairsParallelSides: 0
         },
         {
-          name: "equalateral_triangle",
+          name: "equilateral_triangle",
           regular: false,
           orderRotationalSymmetry: 3,
           numAngles: 3,
