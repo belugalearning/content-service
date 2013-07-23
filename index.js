@@ -71,7 +71,7 @@ window.bl.contentService.tools.sorting = {
         {
           name: "trapezium",
           regular: false,
-          orderRotationalSymmetry: 2,
+          orderRotationalSymmetry: 1,
           numAngles: 4,
           numSides: 4,
           numSidesShapeName: 'quadrilateral',
