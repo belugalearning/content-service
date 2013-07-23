@@ -11,6 +11,155 @@ window.bl.contentService = {
 
 window.bl.contentService.tools.sorting = {
   setDefinitions: {
+    shape: {
+      options: [
+        {
+          name: "scalene_triangle",
+          regular: false,
+          orderRotationalSymmetry: 0,
+          numAngles: 3,
+          numSides: 3,
+          numSidesShapeName: 'triangle',
+          hasEqualSides: false,
+          pairsParallelSides: 0
+        },
+        {
+          name: "isosceles_triangle",
+          regular: false,
+          orderRotationalSymmetry: 0,
+          numAngles: 3,
+          numSides: 3,
+          numSidesShapeName: 'triangle',
+          hasEqualSides: true,
+          pairsParallelSides: 0
+        },
+        {
+          name: "equalateral_triangle",
+          regular: false,
+          orderRotationalSymmetry: 3,
+          numAngles: 3,
+          numSides: 3,
+          numSidesShapeName: 'triangle',
+          hasEqualSides: true,
+          pairsParallelSides: 0
+        },
+        {
+          name: "square",
+          regular: true,
+          orderRotationalSymmetry: 4,
+          numAngles: 4,
+          numSides: 4,
+          numSidesShapeName: 'quadrilateral',
+          hasEqualSides: true,
+          pairsParallelSides: 2
+        },
+        {
+          name: "rectangle",
+          regular: false,
+          orderRotationalSymmetry: 2,
+          numAngles: 4,
+          numSides: 4,
+          numSidesShapeName: 'quadrilateral',
+          hasEqualSides: true,
+          pairsParallelSides: 2
+        },
+        {
+          name: "trapezium",
+          regular: false,
+          orderRotationalSymmetry: 2,
+          numAngles: 4,
+          numSides: 4,
+          numSidesShapeName: 'quadrilateral',
+          hasEqualSides: true,
+          pairsParallelSides: 2
+        },
+        {
+          name: "kite",
+          regular: false,
+          orderRotationalSymmetry: 1,
+          numAngles: 4,
+          numSides: 4,
+          numSidesShapeName: 'quadrilateral',
+          hasEqualSides: true,
+          pairsParallelSides: 2
+        }
+      ],
+      label: function (property, value, negation) {
+        switch (property) {
+          case 'name':
+            var friendly = toTitleCase(value.replace(/\_/ig, ' '))
+            return negation ? 
+              'Is not a ' + friendly :
+              'Is a ' + friendly
+          break;
+          case 'regular':
+            return negation ? 
+              'Is not a ' + value + ' shape' :
+              'Is a ' + value + ' shape'
+          break;
+          case 'orderRotationalSymmetry':
+            return negation ? 
+              'Doesn\'t have ' + value + ' line' + (value !== 1 ? 's' : '') + ' of rotational symmetry' :
+              'Has order ' + value + ' line' + (value !== 1 ? 's' : '') + ' of rotational symmetry'
+          break;
+          case 'numAngles':
+            return negation ? 
+              'Doesn\t have ' + value + ' angles' :
+              'Has ' + value + ' angles'
+          break;
+          case 'numSides':
+            return negation ? 
+              'Doesn\'t have ' + value + ' sides' :
+              'Has ' + value + ' sides'
+          break;
+          case 'numSidesShapeName':
+            return negation ? 
+              'Is not a ' + value :
+              'Is a ' + value
+          break;
+          case 'hasEqualSides':
+            return negation ? 
+              'Doesn\'t have equal sides' : 
+              'Has equal sides'
+          break;
+          case 'pairsParallelSides':
+            return negation ? 
+              'Doesn\'t have ' + value + ' pair' + (value !== 1 ? 's' : '') + ' of parallel sides' :
+              'Has ' + value + ' pair' + (value !== 1 ? 's' : '') + ' of parallel sides'
+          break;
+
+        }
+      },
+      sprite: function(shape) {
+
+        var colours = {
+          red:    { r: 231, g: 0,   b: 0,   a: 255 },
+          yellow: { r: 247, g: 204, b: 0,   a: 255 },
+          green:  { r: 0,   g: 183, b: 0,   a: 255 },
+          blue:   { r: 0,   g: 170, b: 234, a: 255 },
+          pink:   { r: 225, g: 116, b: 172, a: 255 }
+        }
+        var colour = pickRandomProperty(colours)
+        colour = colours[colour];
+
+        var layers = [
+          {
+            filename: 'blank_card',
+            width: 86,
+            height: 83,
+            position: { x: 42, y: 42 }
+          },
+          {
+            shape: shape.name,
+            color: colour,
+            width: 86,
+            height: 83,
+            position: { x: -10, y: 86 }
+          }
+        ]
+        return layers
+      }
+    },
     creature: {
       params: [
         {
@@ -280,45 +429,110 @@ window.bl.contentService.tools.sorting = {
     },
     // autoreject, random properties, 2 sets, all combinations intersect
     table: function(question) {
-      if (question.setCategory != 'creature') throw new Error('Set type not supported')
+      if (question.setCategory != 'creature' && question.setCategory != 'shape') throw new Error('Set type not supported')
       if (question.numSets != 2) throw new Error('invalid number of sets')
 
       var sortingContent = window.bl.contentService.tools.sorting
-      var params = sortingContent.setDefinitions[question.setCategory].params
 
-      // create sets - N.B. random params and random values
-      var sets = []
-      var paramIndices = params.map(function(p, i) { return i })
-      while (sets.length < question.numSets) {
-        var ix = randomArrayIndex(paramIndices)
-        var param = params[paramIndices[ix]]
-        paramIndices.splice(ix, 1)
+      if (question.setCategory === 'creature' ) {
+        var params = sortingContent.setDefinitions[question.setCategory].params
 
-        var setDefinition = {
-          key: param.key,
-          value: randomArrayElement(param.values)
+        // create sets - N.B. random params and random values
+        var sets = []
+        var paramIndices = params.map(function(p, i) { return i })
+        while (sets.length < question.numSets) {
+          var ix = randomArrayIndex(paramIndices)
+          var param = params[paramIndices[ix]]
+          paramIndices.splice(ix, 1)
+
+          var setDefinition = {
+            key: param.key,
+            value: randomArrayElement(param.values)
+          }
+          sets.push(setDefinition)
+
+          var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
+            return setDefinition[pattern]
+          })
+
+          var id = 'set' + (sets.length - 1)
+          question.symbols.sets[id] = {
+            definitionURL: 'local://symbols/sets/' + id,
+            mathml: mathml,
+            label: param.label(setDefinition.value),
+            negationLabel: param.negationLabel(setDefinition.value)
+          }
         }
-        sets.push(setDefinition)
 
-        var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
-          return setDefinition[pattern]
+        question.symbols.set_members = sortingContent.createSetsMembers(question.setCategory, sortingContent.setDefinitions[question.setCategory], sets, function(truthTableRow) { 
+          // 2 per segment except 0 for final (F F ... F) row of truth table
+          return !!~truthTableRow.indexOf(true)
+            ? 2
+            : 0
         })
+      } else {
 
-        var id = 'set' + (sets.length - 1)
-        question.symbols.sets[id] = {
-          definitionURL: 'local://symbols/sets/' + id,
-          mathml: mathml,
-          label: param.label(setDefinition.value),
-          negationLabel: param.negationLabel(setDefinition.value)
+        var shapes = sortingContent.setDefinitions[question.setCategory].options;
+        var label = sortingContent.setDefinitions[question.setCategory].label;
+
+        var properties = {};
+
+        var sets = []
+        var props = []
+
+        while (sets.length < question.numSets) {
+
+          var shape = shapes[randomArrayIndex(shapes)];
+          var prop = pickRandomProperty(shape);
+          while (props.indexOf(prop) > -1) {
+            var prop = pickRandomProperty(shape);
+          }
+          props.push(prop)
+
+          var setDefinition = {
+            key: prop,
+            value: shape[prop]
+          }
+          sets.push(setDefinition)
+
+          var mathml = sortingContent.setTemplates.keyValue.replace(/{(.*?)}/g, function(match, pattern) {
+            return setDefinition[pattern]
+          })
+
+          var id = 'set' + (sets.length - 1)
+          question.symbols.sets[id] = {
+            definitionURL: 'local://symbols/sets/' + id,
+            mathml: mathml,
+            label: label(setDefinition.key, setDefinition.value, false),
+            negationLabel: label(setDefinition.key, setDefinition.value, true)
+          }
         }
-      }
 
-      question.symbols.set_members = sortingContent.createSetsMembers(question.setCategory, sortingContent.setDefinitions[question.setCategory], sets, function(truthTableRow) { 
-        // 2 per segment except 0 for final (F F ... F) row of truth table
-        return !!~truthTableRow.indexOf(true)
-          ? 2
-          : 0
-      })
+        //
+
+        question.symbols.set_members = {};
+
+        for (var i=0; i<shapes.length; i++) {
+          var id = question.setCategory + Object.keys(question.symbols.set_members).length
+          var member = {
+            definitionURL: 'local://symbols/set_members/' + id,
+            name: shapes[i].name
+          }
+          question.symbols.set_members[id] = member
+
+          sortingContent.setDefinitions[question.setCategory].options.forEach(function(param) {
+            for (var j=0; j<sets.length; j++) {
+              if (sets[j].value == param[sets[j].key]) {
+                set = sets[j]
+                member[param.key] = sets[j].value
+              }
+            }
+          })
+
+          member.sprite = sortingContent.setDefinitions[question.setCategory].sprite(member)
+        }
+
+      }
     }
   },
   createSetsMembers: function(setCategory, setCategoryDefinition, sets, numInSegmentFn) {
@@ -371,6 +585,21 @@ function randomArrayIndex(arr) {
 
 function randomArrayElement(arr) {
   return arr[ randomArrayIndex(arr) ]
+}
+
+function pickRandomProperty(obj) {
+  var result;
+  var count = 0;
+  for (var prop in obj) {
+    if (Math.random() < 1/++count) {
+      result = prop;
+    }
+  }
+  return result;
+}
+
+function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 /*
