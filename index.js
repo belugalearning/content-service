@@ -1,5 +1,8 @@
 if (typeof window == 'undefined') window = {} // testing outside of browser
 
+// forces selection of shape keys. Don't delete, just make empty
+var forceShapeKeys = [ 'orderRotationalSymmetry', 'hasEqualSides' ]
+
 window.bl = window.bl || {};
 window.bl.contentService = {
   tools: {},
@@ -18,7 +21,7 @@ window.bl.contentService.tools.sorting = {
         {
           name: "scalene_triangle",
           regular: false,
-          orderRotationalSymmetry: 0,
+          orderRotationalSymmetry: 1,
           numAngles: 3,
           numSides: 3,
           numSidesShapeName: 'triangle',
@@ -28,7 +31,7 @@ window.bl.contentService.tools.sorting = {
         {
           name: "isosceles_triangle",
           regular: false,
-          orderRotationalSymmetry: 0,
+          orderRotationalSymmetry: 1,
           numAngles: 3,
           numSides: 3,
           numSidesShapeName: 'triangle',
@@ -98,9 +101,13 @@ window.bl.contentService.tools.sorting = {
               ? 'regular'
               : 'irregular'
           case 'orderRotationalSymmetry':
-            return !negation 
-              ? 'rotational symmetry order ' + value
-              : 'not rotational symmetry order ' + value
+            return value === 1
+              ? (!negation 
+                ? 'no rotational symmetry'
+                : 'has rotational symmetry')
+              : (!negation
+                ? 'rotational symmetry order ' + value
+                : 'not rotational symmetry order ' + value)
           case 'numAngles':
             return !negation 
               ? value + ' angles'
@@ -118,9 +125,9 @@ window.bl.contentService.tools.sorting = {
               ? 'equal sides'
               : 'no equal sides'
           case 'pairsParallelSides':
-            return negation 
-              ? 'pair(s) parallel sides'
-              : 'no parallel sides'
+            return !negation 
+              ? value + ' pair' + (value == 1 ? '' : 's') + ' parallel sides'
+              : 'not ' + value + ' pair' + (value == 1 ? '' : 's') + ' parallel sides'
         }
       },
       sprite: function(shape) {
@@ -486,7 +493,14 @@ window.bl.contentService.tools.sorting = {
             return ret
           }, [])
 
-          var key = randomArrayElement(availableKeys)
+          var key
+          while (!key || ~chosenKeys.indexOf(key)) {
+            if (chosenKeys.length < forceShapeKeys.length) {
+              key = forceShapeKeys[chosenKeys.length]
+            } else {
+              key = randomArrayElement(availableKeys)
+            }
+          }
           chosenKeys.push(key)
 
           shapes = shapes.filter(function(shape) {
