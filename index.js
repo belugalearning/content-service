@@ -1,7 +1,7 @@
 if (typeof window == 'undefined') window = {} // testing outside of browser
 
 // forces selection of shape keys. Don't delete, just make empty
-var forceShapeKeys = [ 'orderRotationalSymmetry', 'hasEqualSides' ]
+var forceShapeKeys = [ 'hasEqualSides', 'orderRotationalSymmetry' ]
 
 window.bl = window.bl || {};
 window.bl.contentService = {
