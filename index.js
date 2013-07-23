@@ -114,13 +114,12 @@ window.bl.contentService.tools.sorting = {
         <condition>\
           <apply>\
             <eq/>\
-              <apply>\
-                <property/>\
-                <ci>x</ci>\
-                <key>{key}</key>\
-              </apply>\
-              <string>{value}</string>\
-            </eq>\
+            <apply>\
+              <property/>\
+              <ci>x</ci>\
+              <key>{key}</key>\
+            </apply>\
+            <string>{value}</string>\
           </apply>\
         </condition>\
       </set>").replace(/\s*/g, '')
