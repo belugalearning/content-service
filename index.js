@@ -132,11 +132,7 @@ window.bl.contentService.tools.sorting = {
       },
       sprite: function(shape) {
         var colours = {
-          red:    { r: 231, g: 0,   b: 0,   a: 255 },
-          yellow: { r: 247, g: 204, b: 0,   a: 255 },
-          green:  { r: 0,   g: 183, b: 0,   a: 255 },
-          blue:   { r: 0,   g: 170, b: 234, a: 255 },
-          pink:   { r: 225, g: 116, b: 172, a: 255 }
+          charcoal: { r: 35, g: 35,   b: 35,   a: 255 }
         }
         var colour = pickRandomProperty(colours)
         colour = colours[colour];
