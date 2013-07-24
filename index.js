@@ -1,7 +1,7 @@
 if (typeof window == 'undefined') window = {} // testing outside of browser
 
 // forces selection of shape keys. Don't delete, just make empty
-var forceShapeKeys = [ 'hasEqualSides', 'orderRotationalSymmetry' ]
+var forceShapeKeys = []// 'hasEqualSides', 'orderRotationalSymmetry' ]
 
 window.bl = window.bl || {};
 window.bl.contentService = {
@@ -631,6 +631,7 @@ var q = contentService.question({
 })
 console.log(JSON.stringify(q,null,2).replace(/"/g, "'").replace(/\\'/g, '"'))
 //*/
+/*
 var q = window.bl.contentService.question({
   tool: 'sorting',
   toolMode: 'table',
@@ -638,3 +639,4 @@ var q = window.bl.contentService.question({
   numSets: 2
 })
 console.log(JSON.stringify(q,null,2).replace(/"/g, "'").replace(/\\'/g, '"'))
+//*/
