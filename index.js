@@ -149,7 +149,7 @@ window.bl.contentService.tools.sorting = {
             color: colour,
             width: 86,
             height: 83,
-            position: { x: -10, y: 86 }
+            position: { x: -10, y: 96 }
           }
         ]
         return layers
