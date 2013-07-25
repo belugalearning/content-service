@@ -1,7 +1,7 @@
 if (typeof window == 'undefined') window = {} // testing outside of browser
 
 // forces selection of shape keys. Don't delete, just make empty
-var forceShapeKeys = []// 'hasEqualSides', 'orderRotationalSymmetry' ]
+var forceShapeKeys = [ 'pairsParallelSides', 'orderRotationalSymmetry' ]
 
 window.bl = window.bl || {};
 window.bl.contentService = {
@@ -76,7 +76,7 @@ window.bl.contentService.tools.sorting = {
           numSides: 4,
           numSidesShapeName: 'quadrilateral',
           hasEqualSides: false,
-          pairsParallelSides: 2
+          pairsParallelSides: 1
         },
         {
           name: "kite",
@@ -86,7 +86,7 @@ window.bl.contentService.tools.sorting = {
           numSides: 4,
           numSidesShapeName: 'quadrilateral',
           hasEqualSides: true,
-          pairsParallelSides: 2
+          pairsParallelSides: 0
         }
       ],
       label: function (property, value, negation) {
