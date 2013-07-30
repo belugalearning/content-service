@@ -131,11 +131,7 @@ window.bl.contentService.tools.sorting = {
         }
       },
       sprite: function(shape) {
-        var colours = {
-          charcoal: { r: 35, g: 35,   b: 35,   a: 255 }
-        }
-        var colour = pickRandomProperty(colours)
-        colour = colours[colour];
+        var charcoal  = { r: 35, g: 35,   b: 35,   a: 255 }
 
         var layers = [
           {
@@ -146,7 +142,7 @@ window.bl.contentService.tools.sorting = {
           },
           {
             shape: shape.name,
-            color: colour,
+            color: charcoal,
             width: 86,
             height: 83,
             position: { x: -10, y: 96 }
@@ -602,17 +598,6 @@ function randomArrayIndex(arr) {
 
 function randomArrayElement(arr) {
   return arr[ randomArrayIndex(arr) ]
-}
-
-function pickRandomProperty(obj) {
-  var result;
-  var count = 0;
-  for (var prop in obj) {
-    if (Math.random() < 1/++count) {
-      result = prop;
-    }
-  }
-  return result;
 }
 
 function toTitleCase(str) {
