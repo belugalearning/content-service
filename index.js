@@ -133,19 +133,24 @@ window.bl.contentService.tools.sorting = {
       sprite: function(shape) {
         var charcoal  = { r: 35, g: 35,   b: 35,   a: 255 }
 
+        var sprite_width = 100;
+        var sprite_height = 100;
+        var shape_width = 50;
+        var shape_height = 50;
+
         var layers = [
           {
             filename: 'blank_card',
-            width: 86,
-            height: 83,
-            position: { x: 42, y: 42 }
+            width: sprite_width,
+            height: sprite_height,
+            position: { x: sprite_width / 2, y: sprite_height / 2 }
           },
           {
             shape: shape.name,
             color: charcoal,
-            width: 86,
-            height: 83,
-            position: { x: -10, y: 96 }
+            width: shape_width,
+            height: shape_height,
+            position: { x: (sprite_width - shape_width) / 2, y: sprite_height - ((sprite_height - shape_height) / 2) }
           }
         ]
         return layers
