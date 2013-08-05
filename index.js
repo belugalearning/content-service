@@ -150,7 +150,8 @@ window.bl.contentService.tools.sorting = {
             color: charcoal,
             width: shape_width,
             height: shape_height,
-            position: { x: (sprite_width - shape_width) / 2, y: sprite_height - ((sprite_height - shape_height) / 2) }
+            position: { x: (sprite_width - shape_width) / 2, y: (sprite_height - shape_height) / 2 },
+            rotation: (Math.PI * 2) * Math.random()
           }
         ]
         return layers
