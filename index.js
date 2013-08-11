@@ -47,7 +47,7 @@ window.bl.contentService.tools.sorting = {
             this.setDefinitions[set].getAllOptions(),
             function (enabled) {
               if (!enabled) return;
-              window.bl.contentService._defaultOpts["setCategory"] = set;
+              window.bl.contentService._defaultOpts["setCategory"] = this.key;
             }
           )
         );
@@ -62,7 +62,7 @@ window.bl.contentService.tools.sorting = {
             options,
             function (enabled) {
               if (!enabled) return;
-              switch (mode) {
+              switch (this.key) {
                 case 'venn':
                   window.bl.contentService._defaultOpts = { "tool":"sorting", "toolMode":"venn", "setCategory":"creature", "numSets": 3};
                 break;
