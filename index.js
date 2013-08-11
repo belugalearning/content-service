@@ -1,22 +1,103 @@
-if (typeof window == 'undefined') window = {} // testing outside of browser
+if (typeof window == 'undefined') window = {}; // testing outside of browser
 
 // forces selection of shape keys. Don't delete, just make empty
-var forceShapeKeys = []// 'pairsParallelSides', 'orderRotationalSymmetry' ]
+var forceShapeKeys = []; // 'pairsParallelSides', 'orderRotationalSymmetry' ]
+
 
 window.bl = window.bl || {};
 window.bl.contentService = {
   tools: {},
   question: function(opts) {
-    var tool = opts.tool
-    if (typeof tool != 'string') throw new Error('tool must be specified')
-    if (typeof this.tools[tool] == 'undefined') throw new Error('tool not supported')
-    return this.tools[tool].question(opts)
+    var tool = opts.tool;
+    if (typeof tool != 'string') throw new Error('tool must be specified');
+    if (typeof this.tools[tool] == 'undefined') throw new Error('tool not supported');
+    return this.tools[tool].question(opts);
+  },
+  getMenuOptions: function (opts) {
+    var tool = opts.tool;
+    if (typeof tool != 'string') throw new Error('tool must be specified');
+    if (typeof this.tools[tool] == 'undefined') throw new Error('tool not supported');
+
+    return this.tools[tool].menuOptions();
+  },
+  MenuOption: function (name, key, children, selection) {
+    var self = this;
+    this.name = name;
+    this.key = key;
+    this.children = children;
+    this._selection = selection || function () {};
+    this.setSelected = function (enabled) {
+      self._selection.apply(self, [enabled]);
+    };
   }
-}
+};
 
 window.bl.contentService.tools.sorting = {
+  menuOptions: function () {
+    var menu = [];
+    var options = [];
+    var key;
+    for (key in this.setDefinitions) {
+      if (this.setDefinitions.hasOwnProperty(key)) {
+        options.push(
+          new window.bl.contentService.MenuOption(
+            key.replace(/\_/, ' '),
+            key,
+            this.setDefinitions[key].getAllOptions()
+          )
+        );
+      }
+    }
+    for (key in this.modes) {
+      if (this.modes.hasOwnProperty(key)) {
+        menu.push(new window.bl.contentService.MenuOption(key.replace(/\_/, ' '), key, options));
+      }
+    }
+    return menu;
+  },
   setDefinitions: {
     shape: {
+      getAllOptions: function () {
+        var self = this;
+        var options = [];
+        self._options = this.options; // backup the options
+        for (var i = 0; i < this.options.length; i++) {
+          var option = this.options[i];
+          options.push(
+            new window.bl.contentService.MenuOption(
+              option.name.replace(/\_/, ' '),
+              option.name,
+              [],
+              function (enabled) {
+                var thisOption = this;
+                if (enabled) {
+                  var exists = false;
+                  self.options.forEach(function (opt) {
+                    if (opt.name === thisOption.key) {
+                      exists = true;
+                    }
+                  });
+                  if (!exists) {
+                    self.options.push(option);
+                  }
+                } else {
+                  var index = -1;
+                  self.options.forEach(function (opt, i) {
+                    console.log(opt.name, thisOption.key);
+                    if (opt.name == thisOption.key) {
+                      index = i;
+                    }
+                  });
+                  if (index > -1) {
+                    self.options.splice(index, 1);
+                  }
+                }
+              }
+            )
+          );
+        }
+        return options;
+      },
       options: [
         {
           name: "scalene_triangle",
@@ -131,7 +212,7 @@ window.bl.contentService.tools.sorting = {
         }
       },
       sprite: function(shape) {
-        var charcoal  = { r: 35, g: 35,   b: 35,   a: 255 }
+        var charcoal  = { r: 35, g: 35, b: 35, a: 255 };
 
         var sprite_width = 100;
         var sprite_height = 100;
@@ -153,11 +234,23 @@ window.bl.contentService.tools.sorting = {
             position: { x: (sprite_width - shape_width) / 2, y: (sprite_height - shape_height) / 2 },
             rotation: (Math.PI * 2) * Math.random()
           }
-        ]
-        return layers
+        ];
+        return layers;
       }
     },
     creature: {
+      getAllOptions: function () {
+        var options = [];
+        for (var i = 0; i < this.params.length; i++) {
+          var option = this.params[i];
+          var sub_options = [];
+          for (var j = 0; j < option.values.length; j++) {
+            sub_options.push(new window.bl.contentService.MenuOption(option.values[j], option.values[j], []));
+          }
+          options.push(new window.bl.contentService.MenuOption(option.key.replace(/\_/, ' '), option.key, sub_options));
+        }
+        return options;
+      },
       params: [
         {
           key: 'eyes',
@@ -219,7 +312,7 @@ window.bl.contentService.tools.sorting = {
           green:  { r: 0,   g: 183, b: 0,   a: 255 },
           blue:   { r: 0,   g: 170, b: 234, a: 255 },
           pink:   { r: 225, g: 116, b: 172, a: 255 }
-        })[creature.colour]
+        })[creature.colour];
 
         var layers = [
           {
@@ -240,16 +333,16 @@ window.bl.contentService.tools.sorting = {
             height: 83,
             position: { x: 42, y: 42 }
           }
-        ]
+        ];
         if (creature.horn) {
           layers.push({
             filename: 'horns',
             width: 86,
             height: 83,
             position: { x: 42, y: 42 }
-          })
+          });
         }
-        return layers
+        return layers;
       }
     }
   },
@@ -541,13 +634,16 @@ window.bl.contentService.tools.sorting = {
               return (shape[setDefinition.key] == setDefinition.value) == bool
             })
 
-            var numPropValueMembers = 2 + Math.floor(Math.random() * 2)
+            var numPropValueMembers = 2 + Math.floor(Math.random() * (filteredShapes.length));
             for (var i=0; i<numPropValueMembers; i++) {
               var id = question.setCategory + Object.keys(question.symbols.set_members).length
-              var member = JSON.parse(JSON.stringify(randomArrayElement(filteredShapes)))
-              member.sprite = sortingContent.setDefinitions[question.setCategory].sprite(member)
-              member.definitionURL = 'local://symbols/set_members/' + id
-              question.symbols.set_members[id] = member
+              var shape = randomArrayElement(filteredShapes);
+              if (typeof shape !== 'undefined') {
+                var member = JSON.parse(JSON.stringify(shape))
+                member.sprite = sortingContent.setDefinitions[question.setCategory].sprite(member)
+                member.definitionURL = 'local://symbols/set_members/' + id
+                question.symbols.set_members[id] = member
+              }
             }
           })
         })
