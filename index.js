@@ -83,7 +83,6 @@ window.bl.contentService.tools.sorting = {
                 } else {
                   var index = -1;
                   self.options.forEach(function (opt, i) {
-                    console.log(opt.name, thisOption.key);
                     if (opt.name == thisOption.key) {
                       index = i;
                     }
@@ -240,12 +239,62 @@ window.bl.contentService.tools.sorting = {
     },
     creature: {
       getAllOptions: function () {
+        var self = this;
+        self._params = this.params; // backup the params
         var options = [];
         for (var i = 0; i < this.params.length; i++) {
           var option = this.params[i];
           var sub_options = [];
           for (var j = 0; j < option.values.length; j++) {
-            sub_options.push(new window.bl.contentService.MenuOption(option.values[j], option.values[j], []));
+            sub_options.push(
+              new window.bl.contentService.MenuOption(
+                option.values[j],
+                option.key + ':' + option.values[j],
+                [],
+                function (enabled) {
+
+                  var thisOption = this;
+                  var parentKey = thisOption.key.split(':')[0];
+                  var childKey = thisOption.key.split(':')[1];
+                  childKey = isNaN(childKey) ? childKey : parseInt(childKey, 10);
+
+                  if (enabled) {
+                    var exists = false;
+                    self.params.forEach(function (opt) {
+                      if (opt.key == parentKey) {
+                        opt.values.forEach(function (val, i) {
+                          if (val == childKey) {
+                            exists = true;
+                          }
+                        });
+                        if (!exists) {
+                          opt.values.push(childKey);
+                        }
+                      }
+                    });
+                  } else {
+                    self.params.forEach(function (opt, i) {
+                      if (opt.key == parentKey) {
+                        var index = -1;
+                        if (typeof opt._values === 'undefined') {
+                          opt._values = opt.values.slice();
+                        }
+                        opt.values.forEach(function (val, i) {
+                          if (val == childKey) {
+                            index = i;
+                            return;
+                          }
+                        });
+                        if (index > -1) {
+                          opt.values.splice(index, 1);
+                          return;
+                        }
+                      }
+                    });
+                  }
+                }
+              )
+            );
           }
           options.push(new window.bl.contentService.MenuOption(option.key.replace(/\_/, ' '), option.key, sub_options));
         }
