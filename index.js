@@ -7,7 +7,9 @@ var forceShapeKeys = []; // 'pairsParallelSides', 'orderRotationalSymmetry' ]
 window.bl = window.bl || {};
 window.bl.contentService = {
   tools: {},
+  _defaultOpts: {},
   question: function(opts) {
+    opts = opts || window.bl.contentService._defaultOpts;
     var tool = opts.tool;
     if (typeof tool != 'string') throw new Error('tool must be specified');
     if (typeof this.tools[tool] == 'undefined') throw new Error('tool not supported');
@@ -36,21 +38,44 @@ window.bl.contentService.tools.sorting = {
   menuOptions: function () {
     var menu = [];
     var options = [];
-    var key;
-    for (key in this.setDefinitions) {
-      if (this.setDefinitions.hasOwnProperty(key)) {
+    for (var set in this.setDefinitions) {
+      if (this.setDefinitions.hasOwnProperty(set)) {
         options.push(
           new window.bl.contentService.MenuOption(
-            key.replace(/\_/, ' '),
-            key,
-            this.setDefinitions[key].getAllOptions()
+            set.replace(/\_/, ' '),
+            set,
+            this.setDefinitions[set].getAllOptions(),
+            function (enabled) {
+              if (!enabled) return;
+              window.bl.contentService._defaultOpts["setCategory"] = set;
+            }
           )
         );
       }
     }
-    for (key in this.modes) {
-      if (this.modes.hasOwnProperty(key)) {
-        menu.push(new window.bl.contentService.MenuOption(key.replace(/\_/, ' '), key, options));
+    for (var mode in this.modes) {
+      if (this.modes.hasOwnProperty(mode)) {
+        menu.push(
+          new window.bl.contentService.MenuOption(
+            mode.replace(/\_/, ' '),
+            mode,
+            options,
+            function (enabled) {
+              if (!enabled) return;
+              switch (mode) {
+                case 'venn':
+                  window.bl.contentService._defaultOpts = { "tool":"sorting", "toolMode":"venn", "setCategory":"creature", "numSets": 3};
+                break;
+                case 'bar':
+                  window.bl.contentService._defaultOpts = { "tool":"sorting", "toolMode":"bar", "setCategory":"creature", "numSets": 5};
+                break;
+                case 'table':
+                  window.bl.contentService._defaultOpts = { "tool":"sorting", "toolMode":"table", "setCategory":"shape", "numSets": 2};
+                break;
+              }
+            }
+          )
+        );
       }
     }
     return menu;
