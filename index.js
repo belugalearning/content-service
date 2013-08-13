@@ -8,12 +8,17 @@ window.bl = window.bl || {};
 window.bl.contentService = {
   tools: {},
   _defaultOpts: {},
+  _currentOpts: {},
   question: function(opts) {
     opts = opts || window.bl.contentService._defaultOpts;
+    this._currentOpts = opts;
     var tool = opts.tool;
     if (typeof tool != 'string') throw new Error('tool must be specified');
     if (typeof this.tools[tool] == 'undefined') throw new Error('tool not supported');
     return this.tools[tool].question(opts);
+  },
+  getCurrentOptions: function () {
+    return this._currentOpts;
   },
   getMenuOptions: function (opts) {
     var tool = opts.tool;
@@ -22,10 +27,11 @@ window.bl.contentService = {
 
     return this.tools[tool].menuOptions();
   },
-  MenuOption: function (name, key, children, selection) {
+  MenuOption: function (name, key, type, children, selection) {
     var self = this;
     this.name = name;
     this.key = key;
+    this.type = type;
     this.children = children;
     this._selection = selection || function () {};
     this.setSelected = function (enabled) {
@@ -44,6 +50,7 @@ window.bl.contentService.tools.sorting = {
           new window.bl.contentService.MenuOption(
             set.replace(/\_/, ' '),
             set,
+            'setCategory',
             this.setDefinitions[set].getAllOptions(),
             function (enabled) {
               if (!enabled) return;
@@ -70,6 +77,7 @@ window.bl.contentService.tools.sorting = {
           new window.bl.contentService.MenuOption(
             getModeName(mode),
             mode,
+            'toolMode',
             options,
             function (enabled) {
               if (!enabled) return;
@@ -103,6 +111,7 @@ window.bl.contentService.tools.sorting = {
             new window.bl.contentService.MenuOption(
               option.name.replace(/\_/, ' '),
               option.name,
+              'option',
               [],
               function (enabled) {
                 var thisOption = this;
@@ -286,6 +295,7 @@ window.bl.contentService.tools.sorting = {
               new window.bl.contentService.MenuOption(
                 option.values[j],
                 option.key + ':' + option.values[j],
+                'param',
                 [],
                 function (enabled) {
 
@@ -332,7 +342,14 @@ window.bl.contentService.tools.sorting = {
               )
             );
           }
-          options.push(new window.bl.contentService.MenuOption(option.key.replace(/\_/, ' '), option.key, sub_options));
+          options.push(
+            new window.bl.contentService.MenuOption(
+              option.key.replace(/\_/, ' '),
+              option.key,
+              'paramValue',
+              sub_options
+            )
+          );
         }
         return options;
       },
