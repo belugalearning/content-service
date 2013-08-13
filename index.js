@@ -29,8 +29,8 @@ window.bl.contentService = {
   },
   MenuOption: function (name, key, type, children, selection) {
     var self = this;
-    this.name = name;
-    this.key = key;
+    this.name = name.toString();
+    this.key = key.toString();
     this.type = type;
     this.children = children;
     this._selection = selection || function () {};
@@ -71,6 +71,7 @@ window.bl.contentService.tools.sorting = {
           return 'Table';
       }
     }
+
     for (var mode in this.modes) {
       if (this.modes.hasOwnProperty(mode)) {
         menu.push(
@@ -103,43 +104,94 @@ window.bl.contentService.tools.sorting = {
     shape: {
       getAllOptions: function () {
         var self = this;
+        self._options = this.options.slice(); // backup the options
         var options = [];
-        self._options = this.options; // backup the options
+        var uniqueOptions = {};
         for (var i = 0; i < this.options.length; i++) {
           var option = this.options[i];
-          options.push(
-            new window.bl.contentService.MenuOption(
-              option.name.replace(/\_/, ' '),
-              option.name,
-              'option',
-              [],
-              function (enabled) {
-                var thisOption = this;
-                if (enabled) {
-                  var exists = false;
-                  self.options.forEach(function (opt) {
-                    if (opt.name === thisOption.key) {
-                      exists = true;
-                    }
-                  });
-                  if (!exists) {
-                    self.options.push(option);
-                  }
-                } else {
-                  var index = -1;
-                  self.options.forEach(function (opt, i) {
-                    if (opt.name == thisOption.key) {
-                      index = i;
-                    }
-                  });
-                  if (index > -1) {
-                    self.options.splice(index, 1);
-                  }
+          for (var key in option) {
+            if (option.hasOwnProperty(key) && key !== 'name') {
+              uniqueOptions[key] = uniqueOptions[key] || [];
+
+              var exists = false;
+              uniqueOptions[key].forEach(function (val) {
+                if (val == option[key]) {
+                  exists = true;
                 }
+              });
+
+              if (!exists) {
+                uniqueOptions[key].push(option[key]);
               }
-            )
-          );
+            }
+          }
         }
+
+        for (var key in uniqueOptions) {
+          var sub_options = [];
+          if (uniqueOptions.hasOwnProperty(key)) {
+            uniqueOptions[key].sort().forEach(function (value) {
+              sub_options.push(
+                new window.bl.contentService.MenuOption(
+                  value,
+                  key + ':' + value,
+                  'optionValue',
+                  [],
+                  function (enabled) {
+
+                    var thisOption = this;
+                    var parentKey = thisOption.key.split(':')[0];
+                    var childKey = thisOption.key.split(':')[1];
+                    childKey = isNaN(childKey) ?
+                      childKey === 'true' ?
+                        true :
+                          childKey === 'false' ?
+                          false :
+                            childKey
+                      : parseInt(childKey, 10);
+
+                    if (enabled) {
+                      var exists = false;
+                      self._options.forEach(function (option, i) {
+                        for (var key in option) {
+                          if (option.hasOwnProperty(key)) {
+                            if (key == parentKey && option[key] == childKey) {
+                              self.options.push(option);
+                            }
+                          }
+                        }
+                      });
+                    } else {
+                      var to_remove = [];
+                      self.options.forEach(function (option, i) {
+                        for (var key in option) {
+                          if (option.hasOwnProperty(key)) {
+                            if (key == parentKey && option[key] == childKey) {
+                              to_remove.push(i);
+                            }
+                          }
+                        }
+                      });
+                      to_remove.forEach(function(i) {
+                        self.options.splice(i, 1);
+                      });
+                    }
+                  }
+                )
+              );
+            });
+
+            options.push(
+              new window.bl.contentService.MenuOption(
+                key.replace(/\_/, ' '),
+                key,
+                'option',
+                sub_options
+              )
+            );
+          }
+        }
+
         return options;
       },
       options: [
@@ -302,7 +354,13 @@ window.bl.contentService.tools.sorting = {
                   var thisOption = this;
                   var parentKey = thisOption.key.split(':')[0];
                   var childKey = thisOption.key.split(':')[1];
-                  childKey = isNaN(childKey) ? childKey : parseInt(childKey, 10);
+                  childKey = isNaN(childKey) ?
+                    childKey === 'true' ?
+                      true :
+                        childKey === 'false' ?
+                        false :
+                          childKey
+                    : parseInt(childKey, 10);
 
                   if (enabled) {
                     var exists = false;
