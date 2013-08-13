@@ -53,11 +53,22 @@ window.bl.contentService.tools.sorting = {
         );
       }
     }
+
+    function getModeName (mode) {
+      switch (mode) {
+        case 'venn':
+          return 'Venn Diagram';
+        case 'bar':
+          return 'Bar Chart';
+        case 'table':
+          return 'Table';
+      }
+    }
     for (var mode in this.modes) {
       if (this.modes.hasOwnProperty(mode)) {
         menu.push(
           new window.bl.contentService.MenuOption(
-            mode.replace(/\_/, ' '),
+            getModeName(mode),
             mode,
             options,
             function (enabled) {
